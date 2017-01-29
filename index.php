@@ -9,12 +9,13 @@ use sndsgd\form\Validator;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . "/db_conf.php";
+
+
 $app = new \Slim\App([
     'settings' => [
         'displayErrorDetails' => true,
     ]
 ]);
-
 // Get container
 $container = $app->getContainer();
 
@@ -33,13 +34,27 @@ $container["userStorage"] = function ($container) {
     return new UserStorage($container);
 };
 
+$container['csrf'] = function ($c) {
+    return new \Slim\Csrf\Guard;
+};
+
 $app->get("/", function ($request, $response, $args) {
     if (!isset($_SESSION["user_id"])) {
         return $response->withStatus(302)->withHeader('Location', '/login');
     }
+    $nameKey = $this->csrf->getTokenNameKey();
+    $valueKey = $this->csrf->getTokenValueKey();
+    $name = $request->getAttribute($nameKey);
+    $value = $request->getAttribute($valueKey);
     $user = $this->userStorage->getUser($_SESSION["user_id"]);
-    return $this->view->render($response, "home.php", ["user" => $user]);
-});
+    return $this->view->render($response, "home.php", [
+        "user" => $user,
+        "nameKey" => $nameKey,
+        "valueKey" => $valueKey,
+        "name" => $name,
+        "value" => $value
+    ]);
+})->add($container->get('csrf'));
 $app->post("/", function ($request, $response, $args) {
     if (isset($_POST["logout"])) {
         unset($_SESSION["user_id"]);
@@ -49,7 +64,7 @@ $app->post("/", function ($request, $response, $args) {
     $user->counter++;
     $this->userStorage->updateUserCounter($user);
     return $response->withStatus(302)->withHeader('Location', '/');
-});
+})->add($container->get('csrf'));
 
 $app->get("/login", function ($request, $response, $args) {
     return $this->view->render($response, "login.php", ["error" => ""]);
