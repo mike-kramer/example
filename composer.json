@@ -1,0 +1,12 @@
+{
+    "require": {
+        "slim/slim": "^3.0",
+        "slim/php-view": "^2.2",
+        "sndsgd/form": "^0.1.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "classes\\": "classes/"
+        }
+    }
+}
