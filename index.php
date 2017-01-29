@@ -66,9 +66,10 @@ $app->post("/", function ($request, $response, $args) {
     return $response->withStatus(302)->withHeader('Location', '/');
 })->add($container->get('csrf'));
 
+$loggedInMid = new \classes\middleware\LoggedIn();
 $app->get("/login", function ($request, $response, $args) {
     return $this->view->render($response, "login.php", ["error" => ""]);
-});
+})->add($loggedInMid);
 $app->post("/login", function ($request, $response, $args) {
     if (isset($_POST["register"])) {
         return $response->withStatus(302)->withHeader('Location', '/register');
@@ -92,11 +93,11 @@ $app->post("/login", function ($request, $response, $args) {
     else {
         return $response->withStatus(302)->withHeader('Location', '/');
     }
-});
+})->add($loggedInMid);;
 
 $app->get("/register", function ($request, $response, $args) {
     return $this->view->render($response, "register.php", ["error" => ""]);
-});
+})->add($loggedInMid);;
 
 $app->post("/register", function ($request, $response, $args) {
     $form = new Form();
@@ -154,6 +155,6 @@ $app->post("/register", function ($request, $response, $args) {
         $messages = array_map(function ($e) {return $e->getMessage();}, $ex->getErrors());
         return $this->view->render($response, "register.php", ["error" => implode("<br>", $messages)]);
     }
-});
+})->add($loggedInMid);;
 session_start();
 $app->run();
