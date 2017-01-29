@@ -16,7 +16,6 @@ class LoggedIn
         if ($_SESSION["user_id"]) {
             return $response->withStatus(302)->withHeader('Location', '/');
         }
-        $next($request, $response);
-        return $response;
+        return $next($request, $response);
     }
 }
