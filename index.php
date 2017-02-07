@@ -119,11 +119,16 @@ $app->post("/register", function ($request, $response, $args) {
         (new StringField("birthday"))
             ->addRule(new RequiredRule())
             ->addRule(new ClosureRule(function ($value, Validator $validator = null) use(&$birthday) : bool  {
-                $birthday = \DateTime::createFromFormat("d.m.Y", $value);
-                if ($birthday === false) {
+                $d = date_parse_from_format("d.m.Y", $value);
+                if ($d === false) {
                     $validator->addError("birthday", "Неверный формат даты");
                     return false;
                 }
+                if (!checkdate($d["month"], $d["day"], $d["year"])) {
+                    $validator->addError("birthday", "Неверная дата");
+                    return false;
+                }
+                $birthday = \DateTime::createFromFormat("d.m.Y", $value);
                 $now = new DateTime();
                 $diff = $now->diff($birthday);
                 if ($diff->format("r") === "-") {
