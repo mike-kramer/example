@@ -120,7 +120,7 @@ $app->post("/register", function ($request, $response, $args) {
             ->addRule(new RequiredRule())
             ->addRule(new ClosureRule(function ($value, Validator $validator = null) use(&$birthday) : bool  {
                 $d = date_parse_from_format("d.m.Y", $value);
-                if ($d === false) {
+                if ($d["error_count"] != 0) {
                     $validator->addError("birthday", "Неверный формат даты");
                     return false;
                 }
