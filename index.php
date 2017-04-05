@@ -161,5 +161,11 @@ $app->post("/register", function ($request, $response, $args) {
         return $this->view->render($response, "register.php", ["error" => implode("<br>", $messages)]);
     }
 })->add($loggedInMid);;
+
+$app->group("/csrf", function () {
+    $this->get("/", \classes\Controller\Test::class . ":testGen");
+    $this->post("/", \classes\Controller\Test::class . ":testCheck");
+})->add($container->get("csrf"));
+
 session_start();
 $app->run();
